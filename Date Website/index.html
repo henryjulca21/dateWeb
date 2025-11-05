@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Date Invite</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Pacifico', cursive;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #fff0f5;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .gif-container img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .buttons, .activity-icons, .calendar, .back-button {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    button, .icon-button {
+      font-family: 'Quicksand', sans-serif;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #ff69b4;
+      color: white;
+      transition: transform 0.2s;
+    }
+
+    button:hover, .icon-button:hover {
+      transform: scale(1.05);
+    }
+
+    .icon-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #ffe4e1;
+      color: #333;
+    }
+
+    .icon-button img {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 5px;
+    }
+
+    .calendar-img-button img {
+        width: 200px;
+        height: auto;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: transform 0.2s;
+    }
+
+    .calendar-img-button img:hover {
+        transform: scale(1.05);
+    }
+
+    .thank-you {
+        display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="question">Do you want to go on a date with me?</h1>
+  <audio id="bg-music" src="Images/Kiss Me.mp3"></audio>
+  <button id="play-button">Play me</button>
+  <div class="gif-container" id="main-gif">
+    <img src="Images/Date Website Img.gif" alt="Funny Romantic GIF">
+  </div>
+
+  <div class="buttons" id="choice-buttons">
+    <button id="yes-btn">Yes</button>
+    <button id="no-btn">No</button>
+  </div>
+
+  <div class="activity-icons" id="activities" style="display:none;">
+    <div class="icon-button" data-activity="bowling">
+      <img src="Images/bowling.png" alt="Bowling">
+      <span>Bowling</span>
+    </div>
+    <div class="icon-button" data-activity="iphone">
+      <img src="Images/Iphone.jpeg" alt="iPhone Case">
+      <span>DIY Case</span>
+    </div>
+    <div class="icon-button" data-activity="park">
+      <img src="Images/park.webp" alt="Park">
+      <span>Park Date</span>
+    </div>
+    <div class="icon-button" data-activity="museum">
+        <img src="Images/ice cream.jpeg" alt="Musuem">
+        <span>Ice Cream Museum</span>
+      </div>
+  </div>
+
+  <div class="calendar" id="calendar" style="display:none; flex-direction: column; align-items: center;">
+    <h2>Pick a date and time</h2>
+    <a id="calendar-link" href="#" target="_blank" class="calendar-img-button">
+        <img src="Images/catCal.tiff" alt="Calendar Icon" width="200">
+    </a>
+    <div class="back-button">
+        <button id="back-to-activites">Back</button>
+    </div>
+  </div>
+
+  <div class="thank-you" id="thank-you" style="flex-direction: column; align-items: center;">
+    <h1>Can't wait for our date!</h1>
+    <img src="Images/orange.gif" alt="Excited GIF">
+  </div>
+
+  <script>
+    localStorage.removeItem("dateCompleted");
+
+    const yesBtn = document.getElementById('yes-btn');
+    const noBtn = document.getElementById('no-btn');
+    const choiceButtons = document.getElementById('choice-buttons');
+    const activities = document.getElementById('activities');
+    const calendar = document.getElementById('calendar');
+    const question = document.getElementById('question');
+    const backBtn = document.getElementById('back-to-activites');
+    const calendarLink = document.getElementById('calendar-link');
+    const mainGif = document.getElementById('main-gif');
+    const thankYou = document.getElementById('thank-you');
+    const playButton = document.getElementById("play-button");
+    const music = document.getElementById("bg-music");
+
+    
+    const noResponses = ["are you sure?", "really sure", "pookie please", "it will be fun", "so yes?", "I'll take that as a yes"];
+    let noIndex = 0;
+    let currentLink = "#";
+
+    const calendlyLinks = {
+      bowling: "https://calendly.com/hfjulca/30min",
+      iphone: "https://calendly.com/hfjulca/diy-phone-case-date",
+      park: "https://calendly.com/hfjulca/park-picnic-date",
+      museum: "https://calendly.com/hfjulca/ice-cream-museum-date"
+    };
+
+    playButton.addEventListener("click", () => {
+        if (!thankYou.style.display || thankYou.style.display === "none") {
+            music.play();
+            playButton.textContent = "Pause me";
+        } else {
+            toggleMute();
+        }
+    });
+
+function toggleMute() {
+  music.muted = !music.muted;
+  playButton.textContent = music.muted ? "🔇 Unmute" : "🔊 Mute";
+}
+
+    yesBtn.addEventListener('click', () => {
+      choiceButtons.style.display = 'none';
+      question.textContent = "Pick the date activity";
+      activities.style.display = 'flex';
+    });
+
+    document.querySelectorAll('.icon-button').forEach(icon => {
+      icon.addEventListener('click', () => {
+        const activity = icon.getAttribute('data-activity');
+        const link = calendlyLinks[activity];
+        if (link) {
+            calendarLink.href = link;
+            currentLink = link;
+        }
+        activities.style.display = 'none';
+        calendar.style.display = 'flex';
+      });
+    });
+
+    calendarLink.addEventListener('click', (e) => {
+      if (currentLink && currentLink !== "#") {
+        localStorage.setItem("dateCompleted", "true");
+        showThankYou();
+        setTimeout(() => {
+            window.open(currentLink, '_blank');
+        }, 200);
+      } else {
+        e.preventDefault();
+        alert("Please select an activity first!");
+      }
+    });
+
+    function showThankYou() {
+      question.style.display = 'none';
+      mainGif.style.display = 'none';
+      choiceButtons.style.display = 'none';
+      activities.style.display = 'none';
+      calendar.style.display = 'none';
+      thankYou.style.display = 'flex';
+      playButton.textContent = music.muted ? "🔇 Unmute" : "🔊 Mute";
+    }
+
+    if (localStorage.getItem("dateCompleted") === "true") {
+      showThankYou();
+    }
+
+    noBtn.addEventListener('click', () => {
+      if (noIndex < noResponses.length - 1) {
+        noBtn.textContent = noResponses[noIndex];
+        noIndex++;
+      } else {
+        noBtn.textContent = "I'll take that as a yes";
+        setTimeout(() => {
+          yesBtn.click();
+        }, 1000);
+      }
+    });
+
+    backBtn.addEventListener('click', () => {
+      calendar.style.display = 'none';
+      activities.style.display = 'flex';
+      question.textContent = "Pick the date activity";
+    });
+
+    const bgMusic = document.getElementById("bg-music");
+
+    function playMusic() {
+        if (bgMusic.paused) {
+            bgMusic.play().catch(e => {
+            console.warn("Autoplay failed:", e);
+            });
+        }
+    }
+  </script>
+</body>
+</html>
